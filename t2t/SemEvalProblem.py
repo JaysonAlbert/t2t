@@ -11,6 +11,7 @@ from tensor2tensor.layers import modalities
 import tensorflow as tf
 import pandas as pd
 from tensor2tensor.models.lstm import lstm_attention
+from tensor2tensor.layers import common_layers
 
 
 class LSTMRealModality(modalities.RealL2LossModality):
@@ -23,7 +24,9 @@ class LSTMRealModality(modalities.RealL2LossModality):
     def top(self, body_output, _):
         with tf.variable_scope(self.name):
             x = body_output
-            x = tf.reduce_mean(x, axis=[1, 2], keepdims=True)
+            # x = tf.reduce_mean(x, axis=[1, 2], keepdims=True)
+            shape = common_layers.shape_list(x)
+            x = tf.slice(x,[0,shape[1]-1,0,0],[-1,1,-1,-1])
             res = tf.layers.dense(x, self._vocab_size)
             return tf.expand_dims(res, 3)
 

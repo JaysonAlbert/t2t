@@ -1,1 +1,1 @@
-from t2t.SemEvalProblem import SemEvalSentiment
+from t2t.SemEvalProblem import SemEvalSentiment, semeval_lstm

@@ -18,7 +18,7 @@ class LSTMRealModality(modalities.RealL2LossModality):
 
     @property
     def name(self):
-        return "lstm_real_modality_%d_%d" % (self._vocab_size,
+        return "real_lstm_modality_%d_%d" % (self._vocab_size,
                                                self._body_input_depth)
 
     def top(self, body_output, _):
@@ -29,6 +29,29 @@ class LSTMRealModality(modalities.RealL2LossModality):
             x = tf.slice(x,[0,shape[1]-1,0,0],[-1,1,-1,-1])
             res = tf.layers.dense(x, self._vocab_size)
             return tf.expand_dims(res, 3)
+
+    def targets_bottom(self, x):
+        with tf.variable_scope(self.name):
+            return tf.to_float(x)
+
+
+class TransformerRealModality(modalities.RealL2LossModality):
+
+    @property
+    def name(self):
+        return "real_transformer_modality_%d_%d" % (self._vocab_size,
+                                               self._body_input_depth)
+
+    def top(self, body_output, _):
+        with tf.variable_scope(self.name):
+            x = body_output
+            x = tf.reduce_mean(x, axis=[1, 2], keepdims=True)
+            res = tf.layers.dense(x, self._vocab_size)
+            return tf.expand_dims(res, 3)
+
+    def targets_bottom(self, x):
+        with tf.variable_scope(self.name):
+            return tf.to_float(x)
 
 
 def prepare_data(path):
@@ -53,13 +76,23 @@ class SemEvalSentiment(SentimentIMDB):
                 "label": row["targets"]
             }
 
+    @property
+    def dataset_splits(self):
+        return [{
+            "split": problem.DatasetSplit.TRAIN,
+            "shards": 10,
+        }, {
+            "split": problem.DatasetSplit.EVAL,
+            "shards": 3,
+        }]
+
     def example_reading_spec(self):
         data_fields = {
             "inputs": tf.VarLenFeature(tf.int64),
             "targets": tf.FixedLenFeature([1], tf.float32),
         }
         data_items_to_decoders = None
-        return (data_fields, data_items_to_decoders)
+        return data_fields, data_items_to_decoders
 
     def eval_metrics(self):
         return [
@@ -67,12 +100,11 @@ class SemEvalSentiment(SentimentIMDB):
             metrics.Metrics.RMSE, metrics.Metrics.ABS_ERR,
         ]
 
-
     def hparams(self, defaults, unused_model_hparams):
         p = defaults
         p.modality = {
             "inputs": modalities.SymbolModality,
-            "targets": LSTMRealModality
+            "targets": TransformerRealModality
         }
 
         p.vocab_size = {
@@ -84,6 +116,6 @@ class SemEvalSentiment(SentimentIMDB):
 @registry.register_hparams
 def semeval_lstm():
     hparams = lstm_attention()
-    hparams.batch_size = 32
-
+    hparams.batch_size = 512
+    hparams.num_heads = 1
     return hparams

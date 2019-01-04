@@ -1,8 +1,7 @@
-from nltk.corpus import semcor, LazyCorpusLoader, SemcorCorpusReader
+from nltk.corpus import LazyCorpusLoader
 from nltk.corpus import wordnet
 from nltk.corpus.reader import XMLCorpusView, XMLCorpusReader
 from nltk.corpus.reader.util import *
-from itertools import chain
 
 
 def split_file(file, sep=",", block_size=16384):

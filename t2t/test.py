@@ -1,13 +1,11 @@
-from t2t.new_semcor import new_semcor
+import numpy as np
+import tqdm
+from nltk.corpus import wordnet
+from sklearn.metrics import f1_score
 
 from t2t.embedding_server import EmbeddingServer
-
-import numpy as np
-from nltk.corpus import wordnet
+from t2t.new_semcor import new_semcor
 from t2t.util import disambiguation
-import tqdm
-import nltk
-from sklearn.metrics import f1_score
 
 
 def get_sentence_str(input):

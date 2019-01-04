@@ -1,17 +1,11 @@
-import re
-
-from gutenberg import acquire
-from gutenberg import cleanup
-
-from tensor2tensor.data_generators import problem
-from tensor2tensor.data_generators import text_problems
-from tensor2tensor.utils import registry, metrics
-from tensor2tensor.data_generators.imdb import SentimentIMDB
-from tensor2tensor.layers import modalities
-import tensorflow as tf
 import pandas as pd
-from tensor2tensor.models.lstm import lstm_attention
+import tensorflow as tf
+from tensor2tensor.data_generators import problem
+from tensor2tensor.data_generators.imdb import SentimentIMDB
 from tensor2tensor.layers import common_layers
+from tensor2tensor.layers import modalities
+from tensor2tensor.models.lstm import lstm_attention
+from tensor2tensor.utils import registry, metrics
 
 
 class LSTMRealModality(modalities.RealL2LossModality):
